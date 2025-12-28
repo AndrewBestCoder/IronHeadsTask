@@ -14,6 +14,8 @@ class TESTPROJ_API ABaseGameMode : public ATestProjGameModeBase
 {
 	GENERATED_BODY()
 
+	ABaseGameMode();
+
 public:
 	virtual void Tick(float DeltaTime) override;
 };

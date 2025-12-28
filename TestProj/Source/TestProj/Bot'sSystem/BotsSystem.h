@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-namespace MouseMovement
+namespace BotsSystem
 {
 	void Update();
 }
