@@ -11,4 +11,13 @@ void ABaseGameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	BotsSystem::Update();
+
+	
+}
+
+void ABaseGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	BotsSystem::SetGlobalCameraView(GetWorld());
 }

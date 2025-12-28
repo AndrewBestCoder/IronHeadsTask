@@ -18,4 +18,6 @@ class TESTPROJ_API ABaseGameMode : public ATestProjGameModeBase
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void BeginPlay() override;
 };
