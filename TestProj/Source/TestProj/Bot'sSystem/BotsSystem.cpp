@@ -34,3 +34,5 @@ void BotsSystem::SetGlobalCameraView(UWorld* World)
 	PC->SetViewTarget(GlobalCamera);
 }
 
+
+

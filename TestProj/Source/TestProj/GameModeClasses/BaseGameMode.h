@@ -19,6 +19,10 @@ class TESTPROJ_API ABaseGameMode : public ATestProjGameModeBase
 	
 
 public:
+
+	UPROPERTY(EditDefaultsOnly, Category="BotTransform")
+	FVector BotPosition;
+	
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BeginPlay() override;

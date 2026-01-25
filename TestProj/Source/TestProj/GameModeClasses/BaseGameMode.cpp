@@ -36,3 +36,4 @@ void ABaseGameMode::BeginPlay()
 
 	BotsSystem::SetGlobalCameraView(GetWorld());
 }
+
