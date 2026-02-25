@@ -2,7 +2,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
-#include "TestProj/Interfaces/InteractInterface.h"
+#include "TestProj/Bot'sSystem/BotsSystem.h"
 
 void ABasePlayerController::SetupInputComponent()
 {
@@ -61,8 +61,10 @@ void ABasePlayerController::FindMouseClickPosition()
 		{
 			FVector ClickWorldPos = CamLoc + RayDir * T;
 
+			BotsSystem::CheckClickDistance(GetWorld(), ClickWorldPos);
+
 			
-			float Radius = 50.f;
+			/*float Radius = 50.f;
 			int32 Segments = 32;
 			float Thickness = 2.f;
 			float Duration = 60.f;
@@ -80,7 +82,7 @@ void ABasePlayerController::FindMouseClickPosition()
 				FVector::RightVector,
 				FVector::ForwardVector,
 				false
-			);
+			);*/
 		}
 	}
 }

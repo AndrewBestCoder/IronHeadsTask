@@ -3,6 +3,7 @@
 
 #include "BotActor.h"
 
+#include "DrawDebugHelpers.h"
 #include "Misc/MapErrors.h"
 
 
@@ -10,25 +11,8 @@ ABotActor::ABotActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	RootComponent = StaticMesh;
-}
-
-void ABotActor::StartInteract_Implementation()
-{
-	SetColor(ActiveColor);
-}
-
-void ABotActor::EndInteract_Implementation()
-{
-	SetColor(BaseColor);
-}
-
-void ABotActor::SetColor(FLinearColor Color)
-{
-	if (!MaterialInstance) return;
-
-	MaterialInstance->SetVectorParameterValue("Color", Color);
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	RootComponent = Camera;
 }
 
 
@@ -36,23 +20,78 @@ void ABotActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UMaterialInterface* BaseMaterial = StaticMesh->GetMaterial(0);
-	if (!BaseMaterial)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Material not found"));
-		return;
-	}
-	
-	MaterialInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
-	
-	StaticMesh->SetMaterial(0, MaterialInstance);
-	
-	MaterialInstance->SetVectorParameterValue("Color", BaseColor);
+	SetPlayerDefaultPositions(PlayerPosStruct);
+	SetPlayersDebug(PlayerPosStruct);
 }
 
 
 void ABotActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ABotActor::SetPlayerDefaultPositions(FPlayerPosStruct& PlayerPositions)
+{
+	PlayerPositions.LeftPlayerCurrentPos.X = GetActorLocation().X + PlayerPositions.LeftPlayerOffset.X;
+	PlayerPositions.LeftPlayerCurrentPos.Y = GetActorLocation().Y + PlayerPositions.LeftPlayerOffset.Y;
+	
+	PlayerPositions.CenterPlayerCurrentPos.X = GetActorLocation().X + PlayerPositions.CenterPlayerOffset.X;
+	PlayerPositions.CenterPlayerCurrentPos.Y = GetActorLocation().Y + PlayerPositions.CenterPlayerOffset.Y;
+	
+	PlayerPositions.RightPlayerCurrentPos.X = GetActorLocation().X + PlayerPositions.RightPlayerOffset.X;
+	PlayerPositions.RightPlayerCurrentPos.Y = GetActorLocation().Y + PlayerPositions.RightPlayerOffset.Y;
+}
+
+void ABotActor::SetPlayersDebug(FPlayerPosStruct PlayerPositions)
+{
+	float Radius = 50.f;
+	int32 Segments = 32;
+	float Thickness = 2.f;
+	float Duration = 60.f;
+
+	DrawDebugCircle(
+		GetWorld(),
+		PlayerPositions.LeftPlayerCurrentPos,
+		Radius,
+		Segments,
+		FColor::Blue,
+		false,
+		Duration,
+		0,
+		Thickness,
+		FVector::RightVector,
+		FVector::ForwardVector,
+		false
+	);
+
+	DrawDebugCircle(
+		GetWorld(),
+		PlayerPositions.CenterPlayerCurrentPos,
+		Radius,
+		Segments,
+		FColor::Blue,
+		false,
+		Duration,
+		0,
+		Thickness,
+		FVector::RightVector,
+		FVector::ForwardVector,
+		false
+	);
+
+	DrawDebugCircle(
+		GetWorld(),
+		PlayerPositions.RightPlayerCurrentPos,
+		Radius,
+		Segments,
+		FColor::Blue,
+		false,
+		Duration,
+		0,
+		Thickness,
+		FVector::RightVector,
+		FVector::ForwardVector,
+		false
+	);
 }
 
