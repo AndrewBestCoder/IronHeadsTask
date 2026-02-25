@@ -1,6 +1,7 @@
 ﻿#include "BasePlayerController.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 #include "TestProj/Interfaces/InteractInterface.h"
 
 void ABasePlayerController::SetupInputComponent()
@@ -16,24 +17,77 @@ void ABasePlayerController::BeginPlay()
 	SetCursor();
 }
 
+void ABasePlayerController::FindMouseClickPosition()
+{
+	float MouseX, MouseY;
+	GetMousePosition(MouseX, MouseY);
+	
+	FVector CamLoc;
+	FRotator CamRot;
+	GetPlayerViewPoint(CamLoc, CamRot);
+	
+
+	FVector Forward = CamRot.Vector();
+	FVector Right = FRotationMatrix(CamRot).GetScaledAxis(EAxis::Y);
+	FVector Up = FRotationMatrix(CamRot).GetScaledAxis(EAxis::Z); 
+
+	int32 SizeX, SizeY;
+	GetViewportSize(SizeX, SizeY);
+
+
+	float NDC_X = (MouseX / SizeX) * 2.f - 1.f;
+	float NDC_Y = -(MouseY / SizeY) * 2.f + 1.f;
+
+	FVector RayDir =
+		Forward +
+		Right * NDC_X +
+		(Up * 0.5f)    * NDC_Y;
+
+	RayDir.Normalize();
+
+	FVector PlanePoint = FVector(0, 0, 0);  
+	FVector PlaneNormal = FVector::UpVector;
+
+	float Denom = FVector::DotProduct(PlaneNormal, RayDir);
+
+	if (FMath::Abs(Denom) > KINDA_SMALL_NUMBER)
+	{
+		float T = FVector::DotProduct(
+			PlanePoint - CamLoc,
+			PlaneNormal
+		) / Denom;
+
+		if (T >= 0)
+		{
+			FVector ClickWorldPos = CamLoc + RayDir * T;
+
+			
+			float Radius = 50.f;
+			int32 Segments = 32;
+			float Thickness = 2.f;
+			float Duration = 60.f;
+
+			DrawDebugCircle(
+				GetWorld(),
+				ClickWorldPos,
+				Radius,
+				Segments,
+				FColor::Green,
+				false,
+				Duration,
+				0,
+				Thickness,
+				FVector::RightVector,
+				FVector::ForwardVector,
+				false
+			);
+		}
+	}
+}
+
 void ABasePlayerController::MouseClick()
 {
-	AActor* OtherActor = CursorLineTrace();
-	if (OtherActor->GetClass()->ImplementsInterface(UInteractInterface::StaticClass()))
-	{
-		if (InteractActor)
-		{
-			IInteractInterface::Execute_EndInteract(InteractActor);
-			InteractActor = nullptr;
-		}
-		InteractActor = OtherActor;
-		IInteractInterface::Execute_StartInteract(InteractActor);
-	}
-	else if (InteractActor)
-	{
-		IInteractInterface::Execute_EndInteract(InteractActor);
-		InteractActor = nullptr;
-	}
+	FindMouseClickPosition();
 }
 
 void ABasePlayerController::SetCursor()
@@ -46,28 +100,4 @@ void ABasePlayerController::SetCursor()
 	}
 
 	PC->SetShowMouseCursor(true);
-}
-
-AActor* ABasePlayerController::CursorLineTrace()
-{
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!PC) return nullptr;
-
-	FHitResult Hit;
-
-	bool bHit = PC->GetHitResultUnderCursor(
-		ECC_Visibility,
-		false,   
-		Hit
-	);
-
-	if (bHit)
-	{
-		AActor* HitActor = Hit.GetActor();
-		if (HitActor)
-		{
-			return HitActor;
-		}
-	}
-	return nullptr;
 }

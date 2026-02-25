@@ -22,9 +22,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	void FindMouseClickPosition();
+
 	void MouseClick();
 	
 	void SetCursor();
-    
-    AActor* CursorLineTrace();
 };
